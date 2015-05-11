@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" hash="3494014845">
+    <data-source source="LOCAL" name="EncyclopediaDB" uuid="ca963330-6991-43b3-b188-b68bc76de11f">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:</jdbc-url>
+      <libraries />
+    </data-source>
+  </component>
+</project>
