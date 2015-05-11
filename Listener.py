@@ -1,5 +1,4 @@
 __author__ = 'Owner'
-from tweepy import Stream
 from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
 import textwrap
@@ -32,7 +31,7 @@ class Listener(StreamListener):
 
             self.numTweets += 1
 
-            if(self.numTweets < 11):
+            if(self.numTweets < 6):
                 textwrapTweet = ('\n' .join(textwrap.wrap(tweet, 85)))
                 self.tweetArray.append(textwrapTweet)
                 #print(self.tweetArray)

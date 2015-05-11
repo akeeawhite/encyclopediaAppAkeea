@@ -1,10 +1,8 @@
 __author__ = 'Jesse'
 from tkinter import *
 import webbrowser
-import textwrap
 from tweepy import Stream
 from tweepy import OAuthHandler
-from tweepy.streaming import StreamListener
 import threading
 import sqlite3
 from flickrSearch import flickrSearch
@@ -40,10 +38,6 @@ except sqlite3.OperationalError:
 #     thread.start()
 
 
-############### Streaming Flickr #########################
-flKey = '13c592d3851810c8f1a97ed2bd38af90'
-flSecret = 'c3e96f35fe4ef875'
-
 ############### Streaming Tweets ######################
 cKey = 'xLwpqmwpQLNfkKI5Ux5eHSRAP'
 cSecret = '56HR60btiSEjc03GO3Xm0i5VQSVOb9Xs5XQQZi2COQoxhjkqJE'
@@ -53,6 +47,9 @@ aSecret = 'o30rmM7frd8OONtU2QPZGTsw7s8KmGHEpdFYtEKsfJWjw'
 #Sets consumer keys and access tokens
 authorize = OAuthHandler(cKey, cSecret)
 authorize.set_access_token(aToken, aSecret)
+
+#Boolean variable for the search thread that sets the variable to true while running and false when you quit the program
+alive = True
 
 class Main(Frame):
 
@@ -421,7 +418,7 @@ class Main(Frame):
 
     #Function for closing the window
     def close(self):
-        alive = False
+        Listener.alive = False
         cur.execute('DROP TABLE flickr')
         cur.execute('DROP TABLE wiki')
         cur.execute('DROP TABLE twitter')
