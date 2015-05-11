@@ -2,13 +2,13 @@ __author__ = 'Jesse'
 from tkinter import *
 import webbrowser
 import textwrap
-import flickrapi
 from tweepy import Stream
 from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
-from tkinter import messagebox
 import threading
 import sqlite3
+from flickrSearch import flickrSearch
+from Listener import Listener
 
 # create a new database and connect to it
 cxn = sqlite3.connect('EncyclopediaDB')
@@ -44,113 +44,15 @@ except sqlite3.OperationalError:
 flKey = '13c592d3851810c8f1a97ed2bd38af90'
 flSecret = 'c3e96f35fe4ef875'
 
-class flickrSearch:
-    def __init__(self, userSearchFlickr):
-        k = 0
-        h = 0
-        i = 0
-        x = 0
-        j = 0
-        p = 0
-        flickrArray = []
-
-        try:
-            #While loop that opens the flickDB files to overwrite them so you can continuously search
-            while(k < 10):
-                saveFileFlickr = open('flickDB' + str(h) + '.csv', 'w')
-                saveFileFlickr.close()
-                k += 1
-                h += 1
-
-            #Sets flickr key, secret, and format and then searches using the user input and sets how many images to display
-            flickr = flickrapi.FlickrAPI(flKey, flSecret, format='parsed-json')
-            photos = flickr.photos.search(tags=userSearchFlickr, title=userSearchFlickr, per_page='10')
-
-            #While loop that gets specific data of the images for building the photo URL while i < 10
-            while(i < 10):
-                photoFarm = str(photos['photos']['photo'][i]['farm'])
-                photoServer = str(photos['photos']['photo'][i]['server'])
-                photoID = str(photos['photos']['photo'][i]['id'])
-                photoSecret = str(photos['photos']['photo'][i]['secret'])
-
-                #Builds the photo URL
-                buildPhotoURL = ("http://farm" + photoFarm + ".static.flickr.com/" + photoServer + "/" + photoID + "_" + photoSecret + "_m.jpg")
-
-                #Adds the built image URLs to the flickrArray
-                flickrArray.append(buildPhotoURL)
-
-                i += 1
-
-            #While loop that writes the photo URLS to the flickDB file
-            while(j < 10):
-                saveFileFlickr = open('flickDB' + str(x) + '.csv', 'a')
-                saveFileFlickr.write(flickrArray[p])
-                saveFileFlickr.close()
-                j += 1
-                x += 1
-                p += 1
-
-        except:
-            messagebox.showinfo("Error", "No Results returned")
-
-
 ############### Streaming Tweets ######################
 cKey = 'xLwpqmwpQLNfkKI5Ux5eHSRAP'
 cSecret = '56HR60btiSEjc03GO3Xm0i5VQSVOb9Xs5XQQZi2COQoxhjkqJE'
 aToken = '1187764111-LK8d4jwuumvY5XVFx5GKeHSQVcUxJsiEJoE1pMS'
 aSecret = 'o30rmM7frd8OONtU2QPZGTsw7s8KmGHEpdFYtEKsfJWjw'
 
-class Listener(StreamListener):
-
-    def __init__(self, api=None):
-        super(Listener, self).__init__()
-
-        self.numTweets = 0
-        self.i = 1
-
-        #Opens the tDB3 file and overwrites it so you can append it repeatedly
-        saveFile2 = open('tDB3.csv', 'w')
-        saveFile2.close()
-
-    def on_data(self, raw_data):
-
-        try:
-
-            #Sets tweet array and splits the data at text to the source, and then while numTweets is less than 10 it adds tweets to array
-            self.tweetArray = []
-            tweet = raw_data.split(',"text":"')[1].split('","source')[0]
-
-            self.numTweets += 1
-
-            if(self.numTweets < 11):
-                textwrapTweet = ('\n' .join(textwrap.wrap(tweet, 85)))
-                self.tweetArray.append(textwrapTweet)
-                #print(self.tweetArray)
-                saveFile2 = open('tDB3.csv', 'a')
-                saveFile2.write(str(self.i) + "." + ")" + " ")
-                saveFile2.write(textwrapTweet + "\n")
-                saveFile2.close()
-                self.i += 1
-                return True
-            else:
-                return False
-        except:
-            print("Failed")
-
-    #Prints status of error if error occurs
-    def on_error(self, status_code):
-        print(status_code)
-
 #Sets consumer keys and access tokens
 authorize = OAuthHandler(cKey, cSecret)
 authorize.set_access_token(aToken, aSecret)
-
-#Streams the tweets using the Listener class and depending on the criteria of the userSearch
-#twitterStream = Stream(authorize, Listener())
-#twitterStream.filter(track=[userSearch])
-
-#Boolean variable for the search thread that sets the variable to true while running and false when you quit the program
-alive = True
 
 class Main(Frame):
 
@@ -461,7 +363,7 @@ class Main(Frame):
 
             #Function that starts the thread
             def run():
-                while alive:
+                while Listener.alive:
                     multi = threading.Thread(target=search)
                     multi.start()
 
@@ -499,8 +401,6 @@ class Main(Frame):
         for eachUser in cur.fetchall():
 
             print(eachUser)
-
-
 
     #Function for clearing the labels
     def clear(self):
